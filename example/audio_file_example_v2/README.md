@@ -1,16 +1,7 @@
-# audio_file_example
+# Audio file example (V2)
 
-A new Flutter project.
+Demonstrates file recognition with the Google Cloud Speech-to-Text V2 API and `google_speech_gdx_plus`.
 
-## Getting Started
+From this directory, run `flutter pub get` and `flutter run`. Configure a Google Cloud project, recognizer location, and credentials locally. Never commit service-account credentials.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See the package [README](../../README.md) for complete setup and security guidance.

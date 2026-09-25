@@ -1,12 +1,10 @@
-library flutter_google_speech_beta;
-
 import 'dart:async';
 
-import 'package:google_speech/config/longrunning_result.dart';
-import 'package:google_speech/config/recognition_config_v1p1beta1.dart';
-import 'package:google_speech/generated/google/cloud/speech/v1p1beta1/cloud_speech.pbgrpc.dart'
+import 'package:google_speech_gdx_plus/config/longrunning_result.dart';
+import 'package:google_speech_gdx_plus/config/recognition_config_v1p1beta1.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v1p1beta1/cloud_speech.pbgrpc.dart'
     hide RecognitionConfig, StreamingRecognitionConfig;
-import 'package:google_speech/speech_client_authenticator.dart';
+import 'package:google_speech_gdx_plus/speech_client_authenticator.dart';
 import 'package:grpc/grpc.dart';
 
 import 'auth/third_party_authenticator.dart';
@@ -26,31 +24,27 @@ class SpeechToTextBeta {
 
   // Private constructor to prevent direct initialization of the class.
   SpeechToTextBeta._(this._options, {String? cloudSpeechEndpoint})
-      : _channel =
-            ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com');
+    : _channel = ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com');
 
   /// Creates a SpeechToText interface using a service account.
   factory SpeechToTextBeta.viaServiceAccount(
     ServiceAccount account, {
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextBeta._(
-          account.callOptions.mergedWith(CallOptions(metadata: metadata ?? {})),
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextBeta._(
+    account.callOptions.mergedWith(CallOptions(metadata: metadata ?? {})),
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToText interface using a API keys.
   factory SpeechToTextBeta.viaApiKey(
     String apiKey, {
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextBeta._(
-          CallOptions(metadata: {
-            'X-goog-api-key': '$apiKey',
-            ...?metadata,
-          }),
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextBeta._(
+    CallOptions(metadata: {'X-goog-api-key': apiKey, ...?metadata}),
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToText interface using a third party authenticator.
   /// Don't worry about updating the access token, the package does it automatically.
@@ -68,11 +62,12 @@ class SpeechToTextBeta {
     ThirdPartyAuthenticator thirdPartyAuthenticator, {
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextBeta._(
-          thirdPartyAuthenticator.toCallOptions
-              .mergedWith(CallOptions(metadata: metadata ?? {})),
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextBeta._(
+    thirdPartyAuthenticator.toCallOptions.mergedWith(
+      CallOptions(metadata: metadata ?? {}),
+    ),
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToTextBeta interface using a token.
   /// You are responsible for updating the token when it expires.
@@ -81,13 +76,10 @@ class SpeechToTextBeta {
     String token, {
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextBeta._(
-          CallOptions(metadata: {
-            'authorization': '$typeToken $token',
-            ...?metadata,
-          }),
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextBeta._(
+    CallOptions(metadata: {'authorization': '$typeToken $token', ...?metadata}),
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Listen to audio stream.
   /// Cancelled as soon as dispose is called.
@@ -99,7 +91,9 @@ class SpeechToTextBeta {
   /// Audio files transcribed with recognize must not be longer than 60 seconds.
   /// For longer audio files [longRunningRecognize] must be used.
   Future<RecognizeResponse> recognize(
-      RecognitionConfigBeta config, List<int> audio) {
+    RecognitionConfigBeta config,
+    List<int> audio,
+  ) {
     final client = SpeechClient(_channel, options: _options);
 
     // transform audio to RecognitionAudio
@@ -116,7 +110,9 @@ class SpeechToTextBeta {
   /// Sends a [StreamingRecognizeRequest] to the Google Speech Api.
   /// Requires a [StreamingRecognitionConfig] and an audioStream.
   Stream<StreamingRecognizeResponse> streamingRecognize(
-      StreamingRecognitionConfigBeta config, Stream<List<int>> audioStream) {
+    StreamingRecognitionConfigBeta config,
+    Stream<List<int>> audioStream,
+  ) {
     final client = SpeechClient(_channel, options: _options);
 
     // Create the stream, which later transmits the necessary
@@ -124,8 +120,9 @@ class SpeechToTextBeta {
     final request = StreamController<StreamingRecognizeRequest>();
 
     // Send the streaming config at first.
-    request
-        .add(StreamingRecognizeRequest()..streamingConfig = config.toConfig());
+    request.add(
+      StreamingRecognizeRequest()..streamingConfig = config.toConfig(),
+    );
 
     _audioStreamSubscription = audioStream.listen((audio) {
       // Add audio content when stream changes.
@@ -145,7 +142,9 @@ class SpeechToTextBeta {
   /// To use asynchronous speech recognition to transcribe audio longer than 60
   /// seconds, you must have your data saved in a Google Cloud Storage bucket.
   ResponseFuture<Operation> longRunningRecognize(
-      RecognitionConfigBeta config, String audioGcsUri) {
+    RecognitionConfigBeta config,
+    String audioGcsUri,
+  ) {
     final client = SpeechClient(_channel, options: _options);
 
     // transform audio to RecognitionAudio
@@ -160,8 +159,10 @@ class SpeechToTextBeta {
   }
 
   Future<LongRunningRequestResult> pollingLongRunningRecognize(
-      RecognitionConfigBeta config, String audioGcsUri,
-      {Duration pollInterval = const Duration(seconds: 1)}) async {
+    RecognitionConfigBeta config,
+    String audioGcsUri, {
+    Duration pollInterval = const Duration(seconds: 1),
+  }) async {
     final client = SpeechClient(_channel, options: _options);
 
     // transform audio to RecognitionAudio
@@ -177,14 +178,17 @@ class SpeechToTextBeta {
   }
 
   Future<LongRunningRequestResult> _pollOperation(
-      Operation operation, Duration pollInterval) async {
+    Operation operation,
+    Duration pollInterval,
+  ) async {
     final operationsClient = OperationsClient(_channel);
     late Operation operationResult;
     var isDone = false;
     while (isDone != true) {
       final currentOperation = await operationsClient.getOperation(
-          GetOperationRequest(name: operation.name),
-          options: _options);
+        GetOperationRequest(name: operation.name),
+        options: _options,
+      );
 
       if (currentOperation.done) {
         isDone = true;
@@ -193,8 +197,9 @@ class SpeechToTextBeta {
 
       await Future.delayed(pollInterval);
     }
-    final response =
-        LongRunningRecognizeResponse.fromBuffer(operationResult.response.value);
+    final response = LongRunningRecognizeResponse.fromBuffer(
+      operationResult.response.value,
+    );
 
     final result = LongRunningRequestResult(
       operation: operationResult,

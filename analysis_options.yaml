@@ -1,1 +1,10 @@
-include: package:pedantic/analysis_options.yaml
+analyzer:
+  exclude:
+    - build/**
+    - lib/generated/**
+include: package:lints/recommended.yaml
+
+linter:
+  rules:
+    # Public enum values retain the names used by earlier google_speech releases.
+    constant_identifier_names: false

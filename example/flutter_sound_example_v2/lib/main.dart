@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound_lite/flutter_sound.dart';
-import 'package:google_speech/generated/google/cloud/speech/v2/cloud_speech.pb.dart';
-import 'package:google_speech/google_speech.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v2/cloud_speech.pb.dart';
+import 'package:google_speech_gdx_plus/google_speech.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -58,8 +58,9 @@ class _AudioRecognizeState extends State<AudioRecognize> {
 
     // Create recording stream
     _recordingDataController = StreamController<Food>();
-    _recordingDataSubscription =
-        _recordingDataController?.stream.listen((buffer) {
+    _recordingDataSubscription = _recordingDataController?.stream.listen((
+      buffer,
+    ) {
       if (buffer is FoodData) {
         _audioStream!.add(buffer.data!);
       }
@@ -72,46 +73,55 @@ class _AudioRecognizeState extends State<AudioRecognize> {
     await Permission.microphone.request();
 
     await _recorder.startRecorder(
-        toStream: _recordingDataController!.sink,
-        codec: Codec.pcm16,
-        numChannels: kAudioNumChannels,
-        sampleRate: kAudioSampleRate);
+      toStream: _recordingDataController!.sink,
+      codec: Codec.pcm16,
+      numChannels: kAudioNumChannels,
+      sampleRate: kAudioSampleRate,
+    );
 
     final serviceAccount = ServiceAccount.fromString(
-        (await rootBundle.loadString('assets/test_service_account.json')));
-    final speechToText = SpeechToTextV2.viaServiceAccount(serviceAccount,
-        projectId: 'jovial-circuit-314221');
+      (await rootBundle.loadString('assets/test_service_account.json')),
+    );
+    final speechToText = SpeechToTextV2.viaServiceAccount(
+      serviceAccount,
+      projectId: 'jovial-circuit-314221',
+    );
 
     final responseStream = speechToText.streamingRecognize(
-        StreamingRecognitionConfigV2(
-            config: _getConfig(),
-            streamingFeatures:
-                StreamingRecognitionFeatures(interimResults: true)),
-        _audioStream!);
+      StreamingRecognitionConfigV2(
+        config: _getConfig(),
+        streamingFeatures: StreamingRecognitionFeatures(interimResults: true),
+      ),
+      _audioStream!,
+    );
 
     var responseText = '';
 
-    responseStream.listen((data) {
-      final currentText =
-          data.results.map((e) => e.alternatives.first.transcript).join('\n');
+    responseStream.listen(
+      (data) {
+        final currentText = data.results
+            .map((e) => e.alternatives.first.transcript)
+            .join('\n');
 
-      if (data.results.isNotEmpty && data.results.first.isFinal) {
-        responseText += '\n$currentText';
+        if (data.results.isNotEmpty && data.results.first.isFinal) {
+          responseText += '\n$currentText';
+          setState(() {
+            text = responseText;
+            recognizeFinished = true;
+          });
+        } else {
+          setState(() {
+            text = '$responseText\n$currentText';
+            recognizeFinished = true;
+          });
+        }
+      },
+      onDone: () {
         setState(() {
-          text = responseText;
-          recognizeFinished = true;
+          recognizing = false;
         });
-      } else {
-        setState(() {
-          text = '$responseText\n$currentText';
-          recognizeFinished = true;
-        });
-      }
-    }, onDone: () {
-      setState(() {
-        recognizing = false;
-      });
-    });
+      },
+    );
   }
 
   void stopRecording() async {
@@ -125,30 +135,25 @@ class _AudioRecognizeState extends State<AudioRecognize> {
   }
 
   RecognitionConfigV2 _getConfig() => RecognitionConfigV2(
-        model: RecognitionModelV2.long,
-        languageCodes: ['de-DE', 'en-US'],
-        features: RecognitionFeatures(),
-        explicitDecodingConfig: ExplicitDecodingConfig(
-          encoding: ExplicitDecodingConfig_AudioEncoding.LINEAR16,
-          sampleRateHertz: kAudioSampleRate,
-          audioChannelCount: kAudioNumChannels,
-        )
-      );
+    model: RecognitionModelV2.long,
+    languageCodes: ['de-DE', 'en-US'],
+    features: RecognitionFeatures(),
+    explicitDecodingConfig: ExplicitDecodingConfig(
+      encoding: ExplicitDecodingConfig_AudioEncoding.LINEAR16,
+      sampleRateHertz: kAudioSampleRate,
+      audioChannelCount: kAudioNumChannels,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Audio File Example'),
-      ),
+      appBar: AppBar(title: const Text('Audio File Example')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            if (recognizeFinished)
-              _RecognizeContent(
-                text: text,
-              ),
+            if (recognizeFinished) _RecognizeContent(text: text),
             ElevatedButton(
               onPressed: recognizing ? stopRecording : streamingRecognize,
               child: recognizing
@@ -173,16 +178,9 @@ class _RecognizeContent extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: <Widget>[
-          const Text(
-            'The text recognized by the Google Speech Api:',
-          ),
-          const SizedBox(
-            height: 16.0,
-          ),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
+          const Text('The text recognized by the Google Speech Api:'),
+          const SizedBox(height: 16.0),
+          Text(text, style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     );

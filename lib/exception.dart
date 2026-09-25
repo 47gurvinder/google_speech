@@ -32,19 +32,21 @@ class FileNotFoundException extends UnsupportedFileException {
   /// Will be thrown, if a [File] is passed, which is not found on
   /// the file system.
   FileNotFoundException(File? file)
-      : super(
-            'The transferred file could not be found. '
-            'Make sure that the file ${file?.path} exists.',
-            file);
+    : super(
+        'The transferred file could not be found. '
+        'Make sure that the file ${file?.path} exists.',
+        file,
+      );
 }
 
 class UnsupportedFileExtensionException extends UnsupportedFileException {
   /// Will be thrown, if a [File] is passed, which has no json extension.
   UnsupportedFileExtensionException(File? file)
-      : super(
-            'The file extension ${file?.path.split('.').last} is not '
-            'supported. Make sure that the transferred file is a valid Json '
-            'file. A Google Service account Json can be created via '
-            'https://console.cloud.google.com/apis/credentials.',
-            file);
+    : super(
+        'The file extension ${file?.path.split('.').last} is not '
+        'supported. Make sure that the transferred file is a valid Json '
+        'file. A Google Service account Json can be created via '
+        'https://console.cloud.google.com/apis/credentials.',
+        file,
+      );
 }

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_speech/exception.dart';
-import 'package:google_speech/speech_client_authenticator.dart';
+import 'package:google_speech_gdx_plus/exception.dart';
+import 'package:google_speech_gdx_plus/speech_client_authenticator.dart';
 
 void main() {
   // Test the creation of a service account.
@@ -28,32 +28,43 @@ void main() {
     });
 
     test(
-        'Tests if a service account is created when a valid Json string is passed.',
-        () {
-      final serviceAccount = ServiceAccount.fromString(json);
-      expect(serviceAccount.projectId, 'speech-example-123456789');
-    });
+      'Tests if a service account is created when a valid Json string is passed.',
+      () {
+        final serviceAccount = ServiceAccount.fromString(json);
+        expect(serviceAccount.projectId, 'speech-example-123456789');
+      },
+    );
 
-    test('Tests if a service account is created when read Json from a file',
-        () {
-      jsonFile.contents = json;
-      final serviceAccount = ServiceAccount.fromFile(jsonFile);
-      expect(serviceAccount.projectId, 'speech-example-123456789');
-    });
+    test(
+      'Tests if a service account is created when read Json from a file',
+      () {
+        jsonFile.contents = json;
+        final serviceAccount = ServiceAccount.fromFile(jsonFile);
+        expect(serviceAccount.projectId, 'speech-example-123456789');
+      },
+    );
 
-    test('Test if creating a service account fails if no Json file is passed.',
-        () {
-      jsonFile.filePath = 'test.txt';
-      expect(() => ServiceAccount.fromFile(jsonFile),
-          throwsA(isInstanceOf<UnsupportedFileExtensionException>()));
-    });
+    test(
+      'Test if creating a service account fails if no Json file is passed.',
+      () {
+        jsonFile.filePath = 'test.txt';
+        expect(
+          () => ServiceAccount.fromFile(jsonFile),
+          throwsA(isInstanceOf<UnsupportedFileExtensionException>()),
+        );
+      },
+    );
 
-    test('Test if creating a service account fails if no Json does not exists.',
-        () {
-      jsonFile.fileExists = false;
-      expect(() => ServiceAccount.fromFile(jsonFile),
-          throwsA(isInstanceOf<FileNotFoundException>()));
-    });
+    test(
+      'Test if creating a service account fails if no Json does not exists.',
+      () {
+        jsonFile.fileExists = false;
+        expect(
+          () => ServiceAccount.fromFile(jsonFile),
+          throwsA(isInstanceOf<FileNotFoundException>()),
+        );
+      },
+    );
   });
 }
 

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test example/*/lib example/*/test
+      - run: flutter analyze
+      - run: flutter test
+      - name: Test examples
+        run: |
+          for example_dir in example/*; do
+            if [ -d "$example_dir/test" ]; then
+              flutter test "$example_dir/test"
+            fi
+          done

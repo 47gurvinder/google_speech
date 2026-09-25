@@ -1,179 +1,20 @@
-import 'dart:io';
+# Examples
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_speech/google_speech.dart';
-import 'package:path_provider/path_provider.dart';
+These Flutter applications demonstrate `google_speech_gdx_plus` with different audio sources and Google Cloud Speech-to-Text API versions.
 
-void main() {
-  runApp(MyApp());
-}
+- [`audio_file_example`](audio_file_example): recognize and stream a local audio file with API V1.
+- [`audio_file_example_v2`](audio_file_example_v2): recognize a local audio file with API V2.
+- [`mic_stream_example`](mic_stream_example): stream microphone audio with `sound_stream`.
+- [`flutter_sound_example`](flutter_sound_example): stream microphone audio with `flutter_sound_lite` and API V1.
+- [`flutter_sound_example_v2`](flutter_sound_example_v2): stream microphone audio with `flutter_sound_lite` and API V2.
+- [`endless_streaming_example`](endless_streaming_example): demonstrate experimental endless streaming.
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Audio File Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: AudioRecognize(),
-    );
-  }
-}
+Each example references the package at `../../`. The current sample applications load `assets/test_service_account.json`; create that ignored file locally with development-only credentials before running them, and review each application's platform permissions. Never commit a real service-account file or access token, and do not use this asset-based approach in a distributed production application.
 
-class AudioRecognize extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _AudioRecognizeState();
-}
+```sh
+cd example/audio_file_example
+flutter pub get
+flutter run
+```
 
-class _AudioRecognizeState extends State<AudioRecognize> {
-  bool recognizing = false;
-  bool recognizeFinished = false;
-  String text = '';
-
-  void recognize() async {
-    setState(() {
-      recognizing = true;
-    });
-    final serviceAccount = ServiceAccount.fromString(
-        '${(await rootBundle.loadString('assets/test_service_account.json'))}');
-    final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
-    final config = _getConfig();
-    final audio = await _getAudioContent('test.wav');
-
-    await speechToText.recognize(config, audio).then((value) {
-      setState(() {
-        text = value.results
-            .map((e) => e.alternatives.first.transcript)
-            .join('\n');
-      });
-    }).whenComplete(() => setState(() {
-          recognizeFinished = true;
-          recognizing = false;
-        }));
-  }
-
-  void streamingRecognize() async {
-    setState(() {
-      recognizing = true;
-    });
-    final serviceAccount = ServiceAccount.fromString(
-        '${(await rootBundle.loadString('assets/test_service_account.json'))}');
-    final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
-    final config = _getConfig();
-
-    final responseStream = speechToText.streamingRecognize(
-        StreamingRecognitionConfig(config: config, interimResults: true),
-        await _getAudioStream('test.wav'));
-
-    responseStream.listen((data) {
-      setState(() {
-        text =
-            data.results.map((e) => e.alternatives.first.transcript).join('\n');
-        recognizeFinished = true;
-      });
-    }, onDone: () {
-      setState(() {
-        recognizing = false;
-      });
-    });
-  }
-
-  RecognitionConfig _getConfig() => RecognitionConfig(
-      encoding: AudioEncoding.LINEAR16,
-      model: RecognitionModel.basic,
-      enableAutomaticPunctuation: true,
-      sampleRateHertz: 16000,
-      languageCode: 'en-US');
-
-  Future<void> _copyFileFromAssets(String name) async {
-    var data = await rootBundle.load('assets/$name');
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path + '/$name';
-    await File(path).writeAsBytes(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
-  }
-
-  Future<List<int>> _getAudioContent(String name) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path + '/$name';
-    if (!File(path).existsSync()) {
-      await _copyFileFromAssets(name);
-    }
-    return File(path).readAsBytesSync().toList();
-  }
-
-  Future<Stream<List<int>>> _getAudioStream(String name) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path + '/$name';
-    if (!File(path).existsSync()) {
-      await _copyFileFromAssets(name);
-    }
-    return File(path).openRead();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Audio File Example'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            if (recognizeFinished)
-              _RecognizeContent(
-                text: text,
-              ),
-            ElevatedButton(
-              onPressed: recognizing ? () {} : recognize,
-              child: recognizing
-                  ? CircularProgressIndicator()
-                  : Text('Test with recognize'),
-            ),
-            SizedBox(
-              height: 10.0,
-            ),
-            ElevatedButton(
-              onPressed: recognizing ? () {} : streamingRecognize,
-              child: recognizing
-                  ? CircularProgressIndicator()
-                  : Text('Test with streaming recognize'),
-            ),
-          ],
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-
-class _RecognizeContent extends StatelessWidget {
-  final String text;
-
-  const _RecognizeContent({Key? key, required this.text}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          Text(
-            'The text recognized by the Google Speech Api:',
-          ),
-          SizedBox(
-            height: 16.0,
-          ),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-        ],
-      ),
-    );
-  }
-}
+See the main [README](../README.md) for setup, authentication, and credential-safety guidance.

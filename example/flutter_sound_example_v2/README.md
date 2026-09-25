@@ -1,16 +1,7 @@
-# flutter_sound_example_v2
+# Flutter Sound streaming example (V2)
 
-A new Flutter project.
+Demonstrates live microphone transcription with `flutter_sound_lite` and the Google Cloud Speech-to-Text V2 API.
 
-## Getting Started
+From this directory, run `flutter pub get` and `flutter run`. Configure microphone permissions, the V2 resource location, and valid credentials locally. Never commit service-account credentials.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See the package [README](../../README.md) for complete setup and security guidance.

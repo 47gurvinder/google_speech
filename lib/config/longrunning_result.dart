@@ -1,5 +1,5 @@
-import 'package:google_speech/generated/google/longrunning/operations.pb.dart';
-import 'package:google_speech/generated/google/rpc/status.pb.dart';
+import 'package:google_speech_gdx_plus/generated/google/longrunning/operations.pb.dart';
+import 'package:google_speech_gdx_plus/generated/google/rpc/status.pb.dart';
 
 class LongRunningRequestResult {
   final Operation operation;

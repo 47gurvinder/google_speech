@@ -64,7 +64,7 @@ enum AudioEncoding {
   /// MP3 audio. MP3 encoding is a Beta feature and only available in v1p1beta1.
   /// Support all standard MP3 bitrates (which range from 32-320 kbps).
   /// When using this encoding, sampleRateHertz has to match the sample rate of the file being used.
-  MP3
+  MP3,
 }
 
 /// Which model to select for the given request. Select the model best suited
@@ -94,5 +94,5 @@ enum RecognitionModel {
   medical_conversation,
 
   ///Best for audio that originated from dictation notes by a medical provider.
-  medical_dictation
+  medical_dictation,
 }

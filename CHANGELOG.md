@@ -1,3 +1,12 @@
+## [6.0.0] - 2026-09-25
+
+* Rename the package to `google_speech_gdx_plus`. Applications must update their dependency name and `package:` imports.
+* Require Dart 3.8 and Flutter 3.32 to match the supported dependency toolchain.
+* Update `grpc` to 5.x, `protobuf` to 6.x, `googleapis_auth` to 2.x, and `rxdart` to 0.28.x.
+* Update generated-message compatibility for protobuf 6.
+* Remove the Mockito-based file stub from the service-account tests so the suite remains compatible with the updated toolchain.
+* Move the maintained package repository and issue tracker to the community fork.
+
 ## [5.3.0] - Setup to take in optional metadata keys/values to support api key restricting
 * Thanks to @dannnnthemannnn for PR
 
@@ -85,4 +94,3 @@
 * Added a function to use the Google Speech Api via request.
 * Added a function to use the Google Speech Api via a stream.
 * Added a sample project.
-

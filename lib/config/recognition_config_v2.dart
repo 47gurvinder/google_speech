@@ -1,11 +1,11 @@
-import 'package:google_speech/generated/google/cloud/speech/v2/cloud_speech.pb.dart'
-    as _cs;
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v2/cloud_speech.pb.dart'
+    as speech_v1;
 
 class RecognitionConfigV2 {
-  final _cs.RecognitionFeatures? features;
-  final _cs.SpeechAdaptation? adaptation;
-  final _cs.AutoDetectDecodingConfig? autoDecodingConfig;
-  final _cs.ExplicitDecodingConfig? explicitDecodingConfig;
+  final speech_v1.RecognitionFeatures? features;
+  final speech_v1.SpeechAdaptation? adaptation;
+  final speech_v1.AutoDetectDecodingConfig? autoDecodingConfig;
+  final speech_v1.ExplicitDecodingConfig? explicitDecodingConfig;
   final RecognitionModelV2? model;
   final Iterable<String>? languageCodes;
 
@@ -20,13 +20,14 @@ class RecognitionConfigV2 {
     this.languageCodes,
   });
 
-  _cs.RecognitionConfig toConfig() => _cs.RecognitionConfig(
-      features: features,
-      adaptation: adaptation,
-      autoDecodingConfig: autoDecodingConfig,
-      explicitDecodingConfig: explicitDecodingConfig,
-      model: model?.name,
-      languageCodes: languageCodes);
+  speech_v1.RecognitionConfig toConfig() => speech_v1.RecognitionConfig(
+    features: features,
+    adaptation: adaptation,
+    autoDecodingConfig: autoDecodingConfig,
+    explicitDecodingConfig: explicitDecodingConfig,
+    model: model?.name,
+    languageCodes: languageCodes,
+  );
 }
 
 /// Which model to select for the given request. Select the model best suited
@@ -65,6 +66,7 @@ enum RecognitionModelV2 {
   /// This is a premium model that costs more than the standard rate.
   /// For pricing visit this page https://cloud.google.com/speech-to-text/pricing
   medical_dictation,
+
   /// To transcribe a conversation between a medical professional and a patient.
   /// This is a premium model that costs more than the standard rate.
   /// For pricing visit this page https://cloud.google.com/speech-to-text/pricing

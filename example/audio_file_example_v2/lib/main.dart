@@ -3,11 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_speech/config/longrunning_result.dart';
-import 'package:google_speech/generated/google/cloud/speech/v2/cloud_speech.pb.dart';
-import 'package:google_speech/generated/google/longrunning/operations.pb.dart';
-import 'package:google_speech/generated/google/longrunning/operations.pbgrpc.dart';
-import 'package:google_speech/google_speech.dart';
+import 'package:google_speech_gdx_plus/config/longrunning_result.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v2/cloud_speech.pb.dart';
+import 'package:google_speech_gdx_plus/google_speech.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -48,22 +46,30 @@ class _AudioRecognizeState extends State<AudioRecognize> {
       recognizing = true;
     });
     final serviceAccount = ServiceAccount.fromString(
-        (await rootBundle.loadString('assets/test_service_account.json')));
-    final speechToText = SpeechToTextV2.viaServiceAccount(serviceAccount,
-        projectId: 'YOUR-PROJECT-ID');
+      (await rootBundle.loadString('assets/test_service_account.json')),
+    );
+    final speechToText = SpeechToTextV2.viaServiceAccount(
+      serviceAccount,
+      projectId: 'YOUR-PROJECT-ID',
+    );
     final config = _getConfig();
     final audio = await _getAudioContent('test.wav');
 
-    await speechToText.recognize(config, audio).then((value) {
-      setState(() {
-        text = value.results
-            .map((e) => e.alternatives.first.transcript)
-            .join('\n');
-      });
-    }).whenComplete(() => setState(() {
-          recognizeFinished = true;
-          recognizing = false;
-        }));
+    await speechToText
+        .recognize(config, audio)
+        .then((value) {
+          setState(() {
+            text = value.results
+                .map((e) => e.alternatives.first.transcript)
+                .join('\n');
+          });
+        })
+        .whenComplete(
+          () => setState(() {
+            recognizeFinished = true;
+            recognizing = false;
+          }),
+        );
   }
 
   void streamingRecognize() async {
@@ -71,29 +77,37 @@ class _AudioRecognizeState extends State<AudioRecognize> {
       recognizing = true;
     });
     final serviceAccount = ServiceAccount.fromString(
-        (await rootBundle.loadString('assets/test_service_account.json')));
-    final speechToText = SpeechToTextV2.viaServiceAccount(serviceAccount,
-        projectId: 'YOUR-PROJECT-ID');
+      (await rootBundle.loadString('assets/test_service_account.json')),
+    );
+    final speechToText = SpeechToTextV2.viaServiceAccount(
+      serviceAccount,
+      projectId: 'YOUR-PROJECT-ID',
+    );
     final config = _getConfig();
 
     final responseStream = speechToText.streamingRecognize(
-        StreamingRecognitionConfigV2(
-            config: config,
-            streamingFeatures:
-                StreamingRecognitionFeatures(interimResults: true)),
-        await _getAudioStream('test.wav'));
+      StreamingRecognitionConfigV2(
+        config: config,
+        streamingFeatures: StreamingRecognitionFeatures(interimResults: true),
+      ),
+      await _getAudioStream('test.wav'),
+    );
 
-    responseStream.listen((data) {
-      setState(() {
-        text =
-            data.results.map((e) => e.alternatives.first.transcript).join('\n');
-        recognizeFinished = true;
-      });
-    }, onDone: () {
-      setState(() {
-        recognizing = false;
-      });
-    });
+    responseStream.listen(
+      (data) {
+        setState(() {
+          text = data.results
+              .map((e) => e.alternatives.first.transcript)
+              .join('\n');
+          recognizeFinished = true;
+        });
+      },
+      onDone: () {
+        setState(() {
+          recognizing = false;
+        });
+      },
+    );
   }
 
   void longRunningRecognize() async {
@@ -101,18 +115,23 @@ class _AudioRecognizeState extends State<AudioRecognize> {
       recognizing = true;
     });
     final serviceAccount = ServiceAccount.fromString(
-        (await rootBundle.loadString('assets/test_service_account.json')));
-    final speechToText = SpeechToTextV2.viaServiceAccount(serviceAccount,
-        projectId: 'YOUR-PROJECT-ID');
+      (await rootBundle.loadString('assets/test_service_account.json')),
+    );
+    final speechToText = SpeechToTextV2.viaServiceAccount(
+      serviceAccount,
+      projectId: 'YOUR-PROJECT-ID',
+    );
     final config = _getConfig();
 
-    speechToText
-        .pollingLongRunningRecognize(config, 'YOUR-GS-URI')
-        .then((LongRunningRequestResult result) {
+    speechToText.pollingLongRunningRecognize(config, 'YOUR-GS-URI').then((
+      LongRunningRequestResult result,
+    ) {
       setState(() {
         text =
-            result.results?.map((e) => e.alternatives.first.transcript).join('\n') ??
-                "";
+            result.results
+                ?.map((e) => e.alternatives.first.transcript)
+                .join('\n') ??
+            "";
         recognizeFinished = true;
         recognizing = false;
       });
@@ -120,18 +139,19 @@ class _AudioRecognizeState extends State<AudioRecognize> {
   }
 
   RecognitionConfigV2 _getConfig() => RecognitionConfigV2(
-        features: RecognitionFeatures(enableAutomaticPunctuation: true),
-        autoDecodingConfig: AutoDetectDecodingConfig(),
-        model: RecognitionModelV2.long,
-        languageCodes: ['en-US'],
-      );
+    features: RecognitionFeatures(enableAutomaticPunctuation: true),
+    autoDecodingConfig: AutoDetectDecodingConfig(),
+    model: RecognitionModelV2.long,
+    languageCodes: ['en-US'],
+  );
 
   Future<void> _copyFileFromAssets(String name) async {
     var data = await rootBundle.load('assets/$name');
     final directory = await getApplicationDocumentsDirectory();
     final path = directory.path + '/$name';
     await File(path).writeAsBytes(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    );
   }
 
   Future<List<int>> _getAudioContent(String name) async {
@@ -169,35 +189,26 @@ class _AudioRecognizeState extends State<AudioRecognize> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Audio File Example'),
-      ),
+      appBar: AppBar(title: const Text('Audio File Example')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            if (recognizeFinished)
-              _RecognizeContent(
-                text: text,
-              ),
+            if (recognizeFinished) _RecognizeContent(text: text),
             ElevatedButton(
               onPressed: recognizing ? () {} : recognize,
               child: recognizing
                   ? const CircularProgressIndicator()
                   : const Text('Test with recognize'),
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
+            const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: recognizing ? () {} : streamingRecognize,
               child: recognizing
                   ? const CircularProgressIndicator()
                   : const Text('Test with streaming recognize'),
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
+            const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: recognizing ? () {} : longRunningRecognize,
               child: recognizing
@@ -222,16 +233,9 @@ class _RecognizeContent extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: <Widget>[
-          const Text(
-            'The text recognized by the Google Speech Api:',
-          ),
-          const SizedBox(
-            height: 16.0,
-          ),
-          Text(
-            text ?? '---',
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
+          const Text('The text recognized by the Google Speech Api:'),
+          const SizedBox(height: 16.0),
+          Text(text ?? '---', style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     );

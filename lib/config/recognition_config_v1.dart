@@ -1,7 +1,7 @@
-import 'package:google_speech/config/recognition_config.dart';
-import 'package:google_speech/generated/google/cloud/speech/v1/cloud_speech.pb.dart'
-    as _cs;
-import 'package:google_speech/generated/google/protobuf/wrappers.pb.dart';
+import 'package:google_speech_gdx_plus/config/recognition_config.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v1/cloud_speech.pb.dart'
+    as speech_v1;
+import 'package:google_speech_gdx_plus/generated/google/protobuf/wrappers.pb.dart';
 
 class RecognitionConfig {
   /// Provides information to the recognizer
@@ -22,20 +22,26 @@ class RecognitionConfig {
     this.model = RecognitionModel.basic,
     this.useEnhanced = false,
     this.enableSpokenPunctuation,
-  })  : assert(encoding != AudioEncoding.AMR || sampleRateHertz == 8000,
-            'sampleRateHertz must be 8000.'),
-        assert(encoding != AudioEncoding.AMR_WB || sampleRateHertz == 16000,
-            'sampleRateHertz must be 16000.'),
-        assert(
-            encoding != AudioEncoding.OGG_OPUS ||
-                [8000, 12000, 16000, 24000, 48000].contains(sampleRateHertz),
-            'sampleRateHertz must be one of 8000, 12000, 16000, 24000, or 48000.'),
-        assert(
-            encoding != AudioEncoding.SPEEX_WITH_HEADER_BYTE ||
-                sampleRateHertz == 16000,
-            'sampleRateHertz must be 16000.');
+  }) : assert(
+         encoding != AudioEncoding.AMR || sampleRateHertz == 8000,
+         'sampleRateHertz must be 8000.',
+       ),
+       assert(
+         encoding != AudioEncoding.AMR_WB || sampleRateHertz == 16000,
+         'sampleRateHertz must be 16000.',
+       ),
+       assert(
+         encoding != AudioEncoding.OGG_OPUS ||
+             [8000, 12000, 16000, 24000, 48000].contains(sampleRateHertz),
+         'sampleRateHertz must be one of 8000, 12000, 16000, 24000, or 48000.',
+       ),
+       assert(
+         encoding != AudioEncoding.SPEEX_WITH_HEADER_BYTE ||
+             sampleRateHertz == 16000,
+         'sampleRateHertz must be 16000.',
+       );
 
-  _cs.RecognitionConfig toConfig() => _cs.RecognitionConfig()
+  speech_v1.RecognitionConfig toConfig() => speech_v1.RecognitionConfig()
     ..encoding = _encoding(encoding)
     ..languageCode = languageCode
     ..sampleRateHertz = sampleRateHertz!
@@ -45,11 +51,13 @@ class RecognitionConfig {
     ..profanityFilter = profanityFilter
     ..enableWordTimeOffsets = enableWordTimeOffsets
     ..enableAutomaticPunctuation = enableAutomaticPunctuation
-    ..diarizationConfig = diarizationConfig ?? _cs.SpeakerDiarizationConfig()
-    ..metadata = recognitionMetadata ?? _cs.RecognitionMetadata()
+    ..diarizationConfig =
+        diarizationConfig ?? speech_v1.SpeakerDiarizationConfig()
+    ..metadata = recognitionMetadata ?? speech_v1.RecognitionMetadata()
     ..model = _model(model)
-    ..speechContexts
-        .addAll(speechContexts.map((sc) => sc.toGoogleSpeechContext()))
+    ..speechContexts.addAll(
+      speechContexts.map((sc) => sc.toGoogleSpeechContext()),
+    )
     ..useEnhanced = useEnhanced
     ..enableSpokenPunctuation = BoolValue(value: enableSpokenPunctuation);
 
@@ -58,26 +66,26 @@ class RecognitionConfig {
       .replaceAll('RecognitionModel.', '')
       .replaceAll('basic', 'default');
 
-  _cs.RecognitionConfig_AudioEncoding _encoding(AudioEncoding encoding) {
+  speech_v1.RecognitionConfig_AudioEncoding _encoding(AudioEncoding encoding) {
     switch (encoding) {
       case AudioEncoding.ENCODING_UNSPECIFIED:
-        return _cs.RecognitionConfig_AudioEncoding.ENCODING_UNSPECIFIED;
+        return speech_v1.RecognitionConfig_AudioEncoding.ENCODING_UNSPECIFIED;
       case AudioEncoding.LINEAR16:
-        return _cs.RecognitionConfig_AudioEncoding.LINEAR16;
+        return speech_v1.RecognitionConfig_AudioEncoding.LINEAR16;
       case AudioEncoding.FLAC:
-        return _cs.RecognitionConfig_AudioEncoding.FLAC;
+        return speech_v1.RecognitionConfig_AudioEncoding.FLAC;
       case AudioEncoding.MULAW:
-        return _cs.RecognitionConfig_AudioEncoding.MULAW;
+        return speech_v1.RecognitionConfig_AudioEncoding.MULAW;
       case AudioEncoding.AMR:
-        return _cs.RecognitionConfig_AudioEncoding.AMR;
+        return speech_v1.RecognitionConfig_AudioEncoding.AMR;
       case AudioEncoding.AMR_WB:
-        return _cs.RecognitionConfig_AudioEncoding.AMR_WB;
+        return speech_v1.RecognitionConfig_AudioEncoding.AMR_WB;
       case AudioEncoding.OGG_OPUS:
-        return _cs.RecognitionConfig_AudioEncoding.OGG_OPUS;
+        return speech_v1.RecognitionConfig_AudioEncoding.OGG_OPUS;
       case AudioEncoding.SPEEX_WITH_HEADER_BYTE:
-        return _cs.RecognitionConfig_AudioEncoding.SPEEX_WITH_HEADER_BYTE;
+        return speech_v1.RecognitionConfig_AudioEncoding.SPEEX_WITH_HEADER_BYTE;
       default:
-        return _cs.RecognitionConfig_AudioEncoding.ENCODING_UNSPECIFIED;
+        return speech_v1.RecognitionConfig_AudioEncoding.ENCODING_UNSPECIFIED;
     }
   }
 
@@ -184,10 +192,10 @@ class RecognitionConfig {
   /// identify the speakers in the conversation over time.
   /// For non-streaming requests, the diarization results will be provided only
   /// in the top alternative of the FINAL SpeechRecognitionResult.
-  final _cs.SpeakerDiarizationConfig? diarizationConfig;
+  final speech_v1.SpeakerDiarizationConfig? diarizationConfig;
 
   /// Metadata regarding this request.
-  final _cs.RecognitionMetadata? recognitionMetadata;
+  final speech_v1.RecognitionMetadata? recognitionMetadata;
 }
 
 class SpeechContext {
@@ -195,6 +203,6 @@ class SpeechContext {
 
   final List<String> phrases;
 
-  _cs.SpeechContext toGoogleSpeechContext() =>
-      _cs.SpeechContext()..phrases.addAll(phrases);
+  speech_v1.SpeechContext toGoogleSpeechContext() =>
+      speech_v1.SpeechContext()..phrases.addAll(phrases);
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:google_speech/exception.dart';
+import 'package:google_speech_gdx_plus/exception.dart';
 import 'package:grpc/grpc.dart';
 
 /// Contains the necessary [CallOptions] needed to connect
@@ -11,7 +11,7 @@ abstract class SpeechClientAuthenticator {
   /// You can find more information about this at
   /// [Cloud Speech-to-Text API](https://developers.google.com/identity/protocols/oauth2/scopes#speech)
   static final List<String> scopes = [
-    'https://www.googleapis.com/auth/cloud-platform'
+    'https://www.googleapis.com/auth/cloud-platform',
   ];
 
   /// Returns the [CallOptions] of the created service account.
@@ -31,9 +31,11 @@ class ServiceAccount extends SpeechClientAuthenticator {
   String? get projectId => _authenticator.projectId;
 
   // Private constructor to prevent direct initialization of the class.
-  ServiceAccount._(String _serviceAccountJson)
-      : _authenticator = ServiceAccountAuthenticator(
-            _serviceAccountJson, SpeechClientAuthenticator.scopes);
+  ServiceAccount._(String serviceAccountJson)
+    : _authenticator = ServiceAccountAuthenticator(
+        serviceAccountJson,
+        SpeechClientAuthenticator.scopes,
+      );
 
   /// Creates a ServiceAccount using a service-account.json file.
   ///

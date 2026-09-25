@@ -1,0 +1,16 @@
+.dart_tool/
+.git/
+.github/
+.idea/
+build/
+
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/assets/test_service_account.json
+
+*.iml
+*.log

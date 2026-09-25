@@ -1,13 +1,11 @@
-library flutter_google_speech;
-
 import 'dart:async';
 
-import 'package:google_speech/auth/third_party_authenticator.dart';
-import 'package:google_speech/config/longrunning_result.dart';
-import 'package:google_speech/generated/google/cloud/speech/v2/cloud_speech.pbgrpc.dart'
+import 'package:google_speech_gdx_plus/auth/third_party_authenticator.dart';
+import 'package:google_speech_gdx_plus/config/longrunning_result.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v2/cloud_speech.pbgrpc.dart'
     hide RecognitionConfig, StreamingRecognitionConfig;
-import 'package:google_speech/generated/google/longrunning/operations.pbgrpc.dart';
-import 'package:google_speech/speech_client_authenticator.dart';
+import 'package:google_speech_gdx_plus/generated/google/longrunning/operations.pbgrpc.dart';
+import 'package:google_speech_gdx_plus/speech_client_authenticator.dart';
 import 'package:grpc/grpc.dart';
 
 import 'config/recognition_config_v2.dart';
@@ -27,10 +25,11 @@ class SpeechToTextV2 {
   final ClientChannel _channel;
 
   // Private constructor to prevent direct initialization of the class.
-  SpeechToTextV2._(this._options,
-      {required this.projectId, String? cloudSpeechEndpoint})
-      : _channel =
-            ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com');
+  SpeechToTextV2._(
+    this._options, {
+    required this.projectId,
+    String? cloudSpeechEndpoint,
+  }) : _channel = ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com');
 
   /// Creates a SpeechToTextV2 interface using a service account.
   factory SpeechToTextV2.viaServiceAccount(
@@ -38,11 +37,11 @@ class SpeechToTextV2 {
     required String projectId,
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextV2._(
-          account.callOptions.mergedWith(CallOptions(metadata: metadata ?? {})),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextV2._(
+    account.callOptions.mergedWith(CallOptions(metadata: metadata ?? {})),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToText interface using a API keys.
   factory SpeechToTextV2.viaApiKey(
@@ -50,14 +49,11 @@ class SpeechToTextV2 {
     String projectId, {
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextV2._(
-          CallOptions(metadata: {
-            'X-goog-api-key': '$apiKey',
-            ...?metadata,
-          }),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextV2._(
+    CallOptions(metadata: {'X-goog-api-key': apiKey, ...?metadata}),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToTextV2 interface using a third party authenticator.
   /// Don't worry about updating the access token, the package does it automatically.
@@ -76,12 +72,13 @@ class SpeechToTextV2 {
     required String projectId,
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextV2._(
-          thirdPartyAuthenticator.toCallOptions
-              .mergedWith(CallOptions(metadata: metadata ?? {})),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextV2._(
+    thirdPartyAuthenticator.toCallOptions.mergedWith(
+      CallOptions(metadata: metadata ?? {}),
+    ),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Creates a SpeechToTextV2 interface using a token.
   /// You are responsible for updating the token when it expires.
@@ -91,14 +88,11 @@ class SpeechToTextV2 {
     required String projectId,
     String? cloudSpeechEndpoint,
     Map<String, String>? metadata,
-  }) =>
-      SpeechToTextV2._(
-          CallOptions(metadata: {
-            'authorization': '$typeToken $token',
-            ...?metadata,
-          }),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint);
+  }) => SpeechToTextV2._(
+    CallOptions(metadata: {'authorization': '$typeToken $token', ...?metadata}),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+  );
 
   /// Listen to audio stream.
   /// Cancelled as soon as dispose is called.
@@ -110,8 +104,10 @@ class SpeechToTextV2 {
   /// Audio files transcribed with recognize must not be longer than 60 seconds.
   /// For longer audio files [longRunningRecognize] must be used.
   Future<RecognizeResponse> recognize(
-      RecognitionConfigV2 config, List<int> audio,
-      {String location = 'global'}) {
+    RecognitionConfigV2 config,
+    List<int> audio, {
+    String location = 'global',
+  }) {
     final client = SpeechClient(_channel, options: _options);
 
     // Create the request, which transmits the necessary
@@ -126,8 +122,10 @@ class SpeechToTextV2 {
   /// Sends a [StreamingRecognizeRequest] to the Google Speech Api.
   /// Requires a [StreamingRecognitionConfig] and an audioStream.
   Stream<StreamingRecognizeResponse> streamingRecognize(
-      StreamingRecognitionConfigV2 config, Stream<List<int>> audioStream,
-      {String location = 'global'}) {
+    StreamingRecognitionConfigV2 config,
+    Stream<List<int>> audioStream, {
+    String location = 'global',
+  }) {
     final client = SpeechClient(_channel, options: _options);
 
     // Create the stream, which later transmits the necessary
@@ -135,9 +133,11 @@ class SpeechToTextV2 {
     final request = StreamController<StreamingRecognizeRequest>();
 
     // Send the streaming config at first.
-    request.add(StreamingRecognizeRequest()
-      ..streamingConfig = config.toConfig()
-      ..recognizer = 'projects/$projectId/locations/$location/recognizers/_');
+    request.add(
+      StreamingRecognizeRequest()
+        ..streamingConfig = config.toConfig()
+        ..recognizer = 'projects/$projectId/locations/$location/recognizers/_',
+    );
 
     _audioStreamSubscription = audioStream.listen((audio) {
       // Add audio content when stream changes.
@@ -157,8 +157,10 @@ class SpeechToTextV2 {
   /// To use asynchronous speech recognition to transcribe audio longer than 60
   /// seconds, you must have your data saved in a Google Cloud Storage bucket.
   ResponseFuture<Operation> longRunningRecognize(
-      RecognitionConfigV2 config, String audioGcsUri,
-      {String location = 'global'}) {
+    RecognitionConfigV2 config,
+    String audioGcsUri, {
+    String location = 'global',
+  }) {
     final client = SpeechClient(_channel, options: _options);
 
     // transform audio to RecognitionAudio
@@ -170,8 +172,9 @@ class SpeechToTextV2 {
       recognizer: 'projects/$projectId/locations/$location/recognizers/_',
       files: [recognitionAudio],
       config: config.toConfig(),
-      recognitionOutputConfig:
-          RecognitionOutputConfig(inlineResponseConfig: InlineOutputConfig()),
+      recognitionOutputConfig: RecognitionOutputConfig(
+        inlineResponseConfig: InlineOutputConfig(),
+      ),
     );
 
     return client.batchRecognize(request);
@@ -186,9 +189,11 @@ class SpeechToTextV2 {
   /// Polls the [Operation] and returns a [LongRunningRequestResult] as soon as
   /// the Operation is finished.
   Future<LongRunningRequestResult> pollingLongRunningRecognize(
-      RecognitionConfigV2 config, String audioGcsUri,
-      {Duration pollInterval = const Duration(seconds: 1),
-      String location = 'global'}) async {
+    RecognitionConfigV2 config,
+    String audioGcsUri, {
+    Duration pollInterval = const Duration(seconds: 1),
+    String location = 'global',
+  }) async {
     final client = SpeechClient(_channel, options: _options);
 
     // transform audio to RecognitionAudio
@@ -200,8 +205,9 @@ class SpeechToTextV2 {
       recognizer: 'projects/$projectId/locations/$location/recognizers/_',
       files: [recognitionAudio],
       config: config.toConfig(),
-      recognitionOutputConfig:
-          RecognitionOutputConfig(inlineResponseConfig: InlineOutputConfig()),
+      recognitionOutputConfig: RecognitionOutputConfig(
+        inlineResponseConfig: InlineOutputConfig(),
+      ),
     );
 
     final operation = await client.batchRecognize(request);
@@ -209,14 +215,17 @@ class SpeechToTextV2 {
   }
 
   Future<LongRunningRequestResult> _pollOperation(
-      Operation operation, Duration pollInterval) async {
+    Operation operation,
+    Duration pollInterval,
+  ) async {
     final operationsClient = OperationsClient(_channel);
     late Operation operationResult;
     var isDone = false;
     while (isDone != true) {
       final currentOperation = await operationsClient.getOperation(
-          GetOperationRequest(name: operation.name),
-          options: _options);
+        GetOperationRequest(name: operation.name),
+        options: _options,
+      );
 
       if (currentOperation.done) {
         isDone = true;
@@ -225,8 +234,9 @@ class SpeechToTextV2 {
 
       await Future.delayed(pollInterval);
     }
-    final response =
-        BatchRecognizeResponse.fromBuffer(operationResult.response.value);
+    final response = BatchRecognizeResponse.fromBuffer(
+      operationResult.response.value,
+    );
 
     final result = LongRunningRequestResult(
       operation: operationResult,

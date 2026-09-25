@@ -1,12 +1,10 @@
-library flutter_google_speech;
-
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:google_speech/auth/third_party_authenticator.dart';
-import 'package:google_speech/generated/google/cloud/speech/v2/cloud_speech.pbgrpc.dart'
+import 'package:google_speech_gdx_plus/auth/third_party_authenticator.dart';
+import 'package:google_speech_gdx_plus/generated/google/cloud/speech/v2/cloud_speech.pbgrpc.dart'
     hide RecognitionConfig, StreamingRecognitionConfig;
-import 'package:google_speech/speech_client_authenticator.dart';
+import 'package:google_speech_gdx_plus/speech_client_authenticator.dart';
 import 'package:grpc/grpc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'config/streaming_recognition_config.dart';
@@ -28,30 +26,39 @@ class EndlessStreamingServiceV2 {
   final String _location;
 
   // Private constructor to prevent direct initialization of the class.
-  EndlessStreamingServiceV2._(this._options,
-      {required this.projectId, String? cloudSpeechEndpoint, String? location})
-      : _channel =
-            ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com'),
-        _location = location ?? 'global';
+  EndlessStreamingServiceV2._(
+    this._options, {
+    required this.projectId,
+    String? cloudSpeechEndpoint,
+    String? location,
+  }) : _channel = ClientChannel(cloudSpeechEndpoint ?? 'speech.googleapis.com'),
+       _location = location ?? 'global';
 
   /// Creates a EndlessStreamingServiceV2 interface using a service account.
-  factory EndlessStreamingServiceV2.viaServiceAccount(ServiceAccount account,
-          {required String projectId,
-          String? cloudSpeechEndpoint,
-          String? location}) =>
-      EndlessStreamingServiceV2._(account.callOptions,
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint,
-          location: location);
+  factory EndlessStreamingServiceV2.viaServiceAccount(
+    ServiceAccount account, {
+    required String projectId,
+    String? cloudSpeechEndpoint,
+    String? location,
+  }) => EndlessStreamingServiceV2._(
+    account.callOptions,
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+    location: location,
+  );
 
   /// Creates a EndlessStreamingServiceV2 interface using a API keys.
-  factory EndlessStreamingServiceV2.viaApiKey(String apiKey, String projectId,
-          {String? cloudSpeechEndpoint, String? location}) =>
-      EndlessStreamingServiceV2._(
-          CallOptions(metadata: {'X-goog-api-key': '$apiKey'}),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint,
-          location: location);
+  factory EndlessStreamingServiceV2.viaApiKey(
+    String apiKey,
+    String projectId, {
+    String? cloudSpeechEndpoint,
+    String? location,
+  }) => EndlessStreamingServiceV2._(
+    CallOptions(metadata: {'X-goog-api-key': apiKey}),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+    location: location,
+  );
 
   /// Creates a EndlessStreamingServiceV2 interface using a third party authenticator.
   /// Don't worry about updating the access token, the package does it automatically.
@@ -66,26 +73,31 @@ class EndlessStreamingServiceV2 {
   ///         ),
   ///       );
   factory EndlessStreamingServiceV2.viaThirdPartyAuthenticator(
-          ThirdPartyAuthenticator thirdPartyAuthenticator,
-          {required String projectId,
-          String? cloudSpeechEndpoint,
-          String? location}) =>
-      EndlessStreamingServiceV2._(thirdPartyAuthenticator.toCallOptions,
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint,
-          location: location);
+    ThirdPartyAuthenticator thirdPartyAuthenticator, {
+    required String projectId,
+    String? cloudSpeechEndpoint,
+    String? location,
+  }) => EndlessStreamingServiceV2._(
+    thirdPartyAuthenticator.toCallOptions,
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+    location: location,
+  );
 
   /// Creates a EndlessStreamingServiceV2 interface using a token.
   /// You are responsible for updating the token when it expires.
-  factory EndlessStreamingServiceV2.viaToken(String typeToken, String token,
-          {required String projectId,
-          String? cloudSpeechEndpoint,
-          String? location}) =>
-      EndlessStreamingServiceV2._(
-          CallOptions(metadata: {'authorization': '$typeToken $token'}),
-          projectId: projectId,
-          cloudSpeechEndpoint: cloudSpeechEndpoint,
-          location: location);
+  factory EndlessStreamingServiceV2.viaToken(
+    String typeToken,
+    String token, {
+    required String projectId,
+    String? cloudSpeechEndpoint,
+    String? location,
+  }) => EndlessStreamingServiceV2._(
+    CallOptions(metadata: {'authorization': '$typeToken $token'}),
+    projectId: projectId,
+    cloudSpeechEndpoint: cloudSpeechEndpoint,
+    location: location,
+  );
 
   /// Listen to audio stream.
   /// Cancelled as soon as dispose is called.
@@ -114,7 +126,7 @@ class EndlessStreamingServiceV2 {
   late Duration _transitionBufferTime;
 
   late StreamSubscription<StreamingRecognizeResponse>
-      _streamingRecognizeSubscription;
+  _streamingRecognizeSubscription;
 
   /// Sends a [StreamingRecognizeRequest] to the Google Speech Api.
   /// Requires a [StreamingRecognitionConfig] and an audioStream.
@@ -138,46 +150,58 @@ class EndlessStreamingServiceV2 {
 
     // Send the initial streaming config
     // Send the streaming config at first.
-    _request.add(StreamingRecognizeRequest()
-      ..streamingConfig = _config.toConfig()
-      ..recognizer = 'projects/$projectId/locations/$_location/recognizers/_');
+    _request.add(
+      StreamingRecognizeRequest()
+        ..streamingConfig = _config.toConfig()
+        ..recognizer = 'projects/$projectId/locations/$_location/recognizers/_',
+    );
 
     // Send buffered audio to the new stream first
     while (_audioBuffer.isNotEmpty) {
-      _request
-          .add(StreamingRecognizeRequest()..audio = _audioBuffer.removeFirst());
+      _request.add(
+        StreamingRecognizeRequest()..audio = _audioBuffer.removeFirst(),
+      );
     }
 
-    _audioStreamSubscription = _audioStream.listen((audio) {
-      // Buffer audio while transitioning
-      if (_transitioning) {
-        _audioBuffer.add(audio);
+    _audioStreamSubscription = _audioStream.listen(
+      (audio) {
+        // Buffer audio while transitioning
+        if (_transitioning) {
+          _audioBuffer.add(audio);
 
-        // Send empty audio content to keep stream alive and trigger final state.
-        if (!_request.isClosed) {
-          _request.add(StreamingRecognizeRequest()
-            ..audio = List.generate(audio.length, (index) => 0));
+          // Send empty audio content to keep stream alive and trigger final state.
+          if (!_request.isClosed) {
+            _request.add(
+              StreamingRecognizeRequest()
+                ..audio = List.generate(audio.length, (index) => 0),
+            );
+          }
+        } else {
+          // Add audio content to the request
+          _request.add(StreamingRecognizeRequest()..audio = audio);
         }
-      } else {
-        // Add audio content to the request
-        _request.add(StreamingRecognizeRequest()..audio = audio);
-      }
-    }, onDone: () {
-      // Close the request stream, if the audio stream is finished.
-      _audioStreamIsFinished = true;
-      _request.close();
-    });
+      },
+      onDone: () {
+        // Close the request stream, if the audio stream is finished.
+        _audioStreamIsFinished = true;
+        _request.close();
+      },
+    );
 
     // Reset buffer
     _audioBuffer.clear();
     _transitioning = false;
 
-    _streamingRecognizeSubscription =
-        _client.streamingRecognize(_request.stream).listen((value) {
-      _endlessStream.add(value);
-    }, onError: (error) {
-      _endlessStream.addError(error);
-    });
+    _streamingRecognizeSubscription = _client
+        .streamingRecognize(_request.stream)
+        .listen(
+          (value) {
+            _endlessStream.add(value);
+          },
+          onError: (error) {
+            _endlessStream.addError(error);
+          },
+        );
 
     _resetTimer = Timer(_restartTime, _restart);
   }

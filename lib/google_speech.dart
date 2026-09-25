@@ -9,4 +9,4 @@ export 'speech_to_text.dart';
 export 'speech_to_text_beta.dart';
 export 'speech_to_text_v2.dart';
 export 'auth/third_party_authenticator.dart';
-export 'package:googleapis_auth/src/access_credentials.dart' show AccessCredentials;
+export 'package:googleapis_auth/googleapis_auth.dart' show AccessCredentials;
